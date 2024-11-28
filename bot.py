@@ -168,10 +168,9 @@ async def change_scenario(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("Sibling", callback_data='sibling'),
          InlineKeyboardButton("Coach", callback_data='coach')],
         [InlineKeyboardButton("Guidance Counselor", callback_data='guidance_counselor'),
-         InlineKeyboardButton("Socratic Tutor", callback_data='socratic_tutor')],
-        [InlineKeyboardButton("Mental Health Advocate",
-                              callback_data='mental_health_advocate')]
-    ]
+         InlineKeyboardButton("Cpp Expert", callback_data='cpp_expert')],
+        [InlineKeyboardButton("Socratic Tutor", callback_data='socratic_tutor'),
+        InlineKeyboardButton("Mental Health Advocate", callback_data='mental_health_advocate')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
@@ -183,6 +182,7 @@ async def change_scenario(update: Update, context: ContextTypes.DEFAULT_TYPE):
              "👶 Sibling: Play with your 6-year-old younger brother\n"
              "🏋️ Coach: Get motivated by your dedicated high school sports coach\n"
              "🧠 Guidance Counselor: Discuss your concerns with the school counselor\n"
+             "🧠 cpp Expert: Learn about C++ programming language\n\n"
              "🎓 Socratic Tutor: Learn through guided questioning\n\n"
              "💚 Mental Health Advocate: Talk to a compassionate mental health professional\n\n"
              "Select an option to change who you're talking to:",
@@ -216,8 +216,9 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'sibling': "Sibling - You're now playing with your 6-year-old younger brother!",
             'coach': "Coach - You're now getting motivated by your dedicated high school sports coach!",
             'guidance_counselor': "Guidance Counselor - You're now discussing your concerns with the school counselor!",
+            'cpp_expert': "C++ Expert - You're now talking to a skilled C++ developer!",
             'socratic_tutor': "Socratic Tutor - You're now learning through guided questioning!",
-            'mental_health_advocate': "Mental Health Advocate - You're now talking to a compassionate mental health professional!"
+            'mental_health_advocate': "Mental Health Advocate - You're now talking to a compassionate mental health professional!",
         }
 
         await query.edit_message_text(
