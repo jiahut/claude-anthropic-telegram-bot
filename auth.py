@@ -43,7 +43,9 @@ def load_user_history(user_id, scenario):
     if not os.path.exists(history_file):
         return []
     with open(history_file, "r") as f:
-        return json.load(f)
+        full_history = json.load(f)
+        # Only return the last two message records
+        return full_history[-2:] if len(full_history) >= 2 else full_history
 
 def save_user_scenario(user_id, scenario):
     if not os.path.exists(HISTORY_DIR):
