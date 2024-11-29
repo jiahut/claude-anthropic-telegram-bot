@@ -30,8 +30,7 @@ class RateLimiter:
         if len(self.request_tokens) >= self.rpm_limit or sum(self.token_tokens) + tokens > self.tpm_limit:
             sleep_time = 60 - \
                 (current_time - min(self.request_tokens + self.token_tokens))
-            logger.info(f"Rate limit reached. Sleeping for {
-                        sleep_time:.2f} seconds")
+            logger.info(f"Rate limit reached. Sleeping for {sleep_time:.2f} seconds")
             time.sleep(sleep_time)
 
         self.request_tokens.append(current_time)
