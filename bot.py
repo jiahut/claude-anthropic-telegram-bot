@@ -130,7 +130,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     help_text = """
     Here are the available actions:
     • /change_scenario - Switch to a different character to talk to
-    • /set_history_count <number> - Set the number of history messages to load
+    • /set_history_count 1 - Set the <number> of history messages to load
     • /status - Display current scenario, history count, and other information
     • /clear - Reset your conversation history (use with caution!)
     • /help - Show this help message
@@ -324,7 +324,7 @@ async def set_history_count(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     count = int(context.args[0])
     set_history_messages_count(count)
-    await send_message_with_retry(context, update.effective_chat.id, f"History messages count has been set to {get_history_messages_count}.")
+    await send_message_with_retry(context, update.effective_chat.id, f"History messages count has been set to {get_history_messages_count()}.")
 
 async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -352,7 +352,7 @@ def main():
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("clear", clear_command))
-    application.add_handler(CommandHandler("status", status_command)) 
+    application.add_handler(CommandHandler("status", status_command))
     application.add_handler(CommandHandler("change_scenario", change_scenario))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     application.add_handler(CallbackQueryHandler(button))
