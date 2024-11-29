@@ -149,9 +149,9 @@ async def clear_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         archive_user_history(user_id, scenario)
 
     context.user_data['messages'] = []
-    context.user_data['scenario'] = 'boyfriend'
+    context.user_data['scenario'] = load_user_scenario(user_id)
 
-    await send_message_with_retry(context, update.effective_chat.id, "All your conversation histories across all scenarios have been reset.", reply_markup=get_common_actions_keyboard())
+    await send_message_with_retry(context, update.effective_chat.id, "All your conversation histories across all scenarios have been reset. you are currently chatting with your '{}'.".format(context.user_data['scenario']), reply_markup=get_common_actions_keyboard())
 
 async def change_scenario(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
