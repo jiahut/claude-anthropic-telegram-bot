@@ -130,7 +130,11 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     help_text = """
     Here are the available actions:
     • /change_scenario - Switch to a different character to talk to
-    • /set_history_count 1 - Set the <number> of history messages to load
+    • /set_history_count <num> - Set the number of history messages to load
+      Quick shortcuts:
+      - /set_history_count_1
+      - /set_history_count_2
+      - /set_history_count_3
     • /status - Display current scenario, history count, and other information
     • /clear - Reset your conversation history (use with caution!)
     • /help - Show this help message
@@ -138,6 +142,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     You can also send me any message, and I'll respond based on the current scenario!
     """
     await send_message_with_retry(context, update.effective_chat.id, help_text, reply_markup=get_common_actions_keyboard())
+
 
 
 async def clear_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -310,21 +315,23 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
         user_name = get_user_name(update.effective_user) if update.effective_user else "User"
         await send_message_with_retry(context, update.effective_chat.id, f"{user_name}, {error_message}")
 
-# Add this new command handler function
-async def set_history_count(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def set_history_count(update: Update, context: ContextTypes.DEFAULT_TYPE, count=None):
     user_id = update.effective_user.id
     user_name = get_user_name(update.effective_user)
     if not is_authenticated(user_id):
         await send_message_with_retry(context, update.effective_chat.id, f"I'm sorry, {user_name}, but I can only assist authenticated users. Please provide the secret code first.")
         return
 
-    if not context.args or not context.args[0].isdigit():
-        await send_message_with_retry(context, update.effective_chat.id, "Please provide a valid number of messages to load from history.")
+    if count is not None:
+        new_count = count
+    elif context.args and context.args[0].isdigit():
+        new_count = int(context.args[0])
+    else:
+        await send_message_with_retry(context, update.effective_chat.id, "Please provide a valid number for the history count.")
         return
 
-    count = int(context.args[0])
-    set_history_messages_count(count)
-    await send_message_with_retry(context, update.effective_chat.id, f"History messages count has been set to {get_history_messages_count()}.")
+    set_history_messages_count(new_count)
+    await send_message_with_retry(context, update.effective_chat.id, f"History message count has been set to {new_count}.")
 
 async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -349,6 +356,9 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
     application.add_handler(CommandHandler("set_history_count", set_history_count))
+    application.add_handler(CommandHandler("set_history_count_1", lambda update, context: set_history_count(update, context, count=1)))
+    application.add_handler(CommandHandler("set_history_count_2", lambda update, context: set_history_count(update, context, count=2)))
+    application.add_handler(CommandHandler("set_history_count_3", lambda update, context: set_history_count(update, context, count=3)))
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("clear", clear_command))
