@@ -129,11 +129,11 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     help_text = """
     Here are the available actions:
-    • Change Scenario - Switch to a different character to talk to
-    • Clear History - Reset your conversation history (use with caution!)
-    • Help - Show this help message
+    • /change_scenario - Switch to a different character to talk to
     • /set_history_count <number> - Set the number of history messages to load
     • /status - Display current scenario, history count, and other information
+    • /clear - Reset your conversation history (use with caution!)
+    • /help - Show this help message
 
     You can also send me any message, and I'll respond based on the current scenario!
     """
@@ -353,7 +353,7 @@ def main():
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("clear", clear_command))
     application.add_handler(CommandHandler("status", status_command)) 
-    application.add_handler(CommandHandler("scenario", change_scenario))
+    application.add_handler(CommandHandler("change_scenario", change_scenario))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     application.add_handler(CallbackQueryHandler(button))
     application.add_error_handler(error_handler)
