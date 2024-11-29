@@ -132,6 +132,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     • /change_scenario - Switch to a different character to talk to
     • /set_history_count <num> - Set the number of history messages to load
       Quick shortcuts:
+      - /set_history_count_0
       - /set_history_count_1
       - /set_history_count_2
       - /set_history_count_3
@@ -356,6 +357,7 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
     application.add_handler(CommandHandler("set_history_count", set_history_count))
+    application.add_handler(CommandHandler("set_history_count_0", lambda update, context: set_history_count(update, context, count=0)))
     application.add_handler(CommandHandler("set_history_count_1", lambda update, context: set_history_count(update, context, count=1)))
     application.add_handler(CommandHandler("set_history_count_2", lambda update, context: set_history_count(update, context, count=2)))
     application.add_handler(CommandHandler("set_history_count_3", lambda update, context: set_history_count(update, context, count=3)))
