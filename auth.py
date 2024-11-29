@@ -12,6 +12,7 @@ load_dotenv()
 WHITELIST_FILE = "whitelist.txt"
 HISTORY_DIR = "user_histories"
 AUTH_CODE = os.getenv("AUTH_CODE")
+HISTORY_MESSAGES_COUNT = 1
 
 logger = logging.getLogger(__name__)
 
@@ -44,8 +45,17 @@ def load_user_history(user_id, scenario):
         return []
     with open(history_file, "r") as f:
         full_history = json.load(f)
-        # Only return the last two message records
-        return full_history[-2:] if len(full_history) >= 2 else full_history
+        # Use the global variable to determine how many messages to return
+        msgs = HISTORY_MESSAGES_COUNT * 2
+        return full_history[-msgs:] if len(full_history) >= msgs else full_history
+
+# Add this new function to set the history messages count
+def set_history_messages_count(count):
+    global HISTORY_MESSAGES_COUNT
+    HISTORY_MESSAGES_COUNT = count
+
+def get_history_messages_count():
+    return HISTORY_MESSAGES_COUNT
 
 def save_user_scenario(user_id, scenario):
     if not os.path.exists(HISTORY_DIR):

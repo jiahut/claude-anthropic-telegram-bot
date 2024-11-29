@@ -11,7 +11,7 @@ from anthropic_api import generate_response
 from utils import format_message, truncate_message, split_long_message, sanitize_input
 from auth import (
     is_authenticated, authenticate_user, save_user_history, load_user_history, AUTH_CODE, save_user_scenario, load_user_scenario,
-    archive_user_history, is_new_user
+    archive_user_history, is_new_user, set_history_messages_count, get_history_messages_count
 )
 from scenarios import SCENARIOS
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -132,11 +132,13 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     • Change Scenario - Switch to a different character to talk to
     • Clear History - Reset your conversation history (use with caution!)
     • Help - Show this help message
+    • /set_history_count <number> - Set the number of history messages to load
+    • /status - Display current scenario, history count, and other information
 
     You can also send me any message, and I'll respond based on the current scenario!
     """
-
     await send_message_with_retry(context, update.effective_chat.id, help_text, reply_markup=get_common_actions_keyboard())
+
 
 async def clear_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -308,18 +310,53 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
         user_name = get_user_name(update.effective_user) if update.effective_user else "User"
         await send_message_with_retry(context, update.effective_chat.id, f"{user_name}, {error_message}")
 
+# Add this new command handler function
+async def set_history_count(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    user_name = get_user_name(update.effective_user)
+    if not is_authenticated(user_id):
+        await send_message_with_retry(context, update.effective_chat.id, f"I'm sorry, {user_name}, but I can only assist authenticated users. Please provide the secret code first.")
+        return
+
+    if not context.args or not context.args[0].isdigit():
+        await send_message_with_retry(context, update.effective_chat.id, "Please provide a valid number of messages to load from history.")
+        return
+
+    count = int(context.args[0])
+    set_history_messages_count(count)
+    await send_message_with_retry(context, update.effective_chat.id, f"History messages count has been set to {get_history_messages_count}.")
+
+async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    user_name = get_user_name(update.effective_user)
+    if not is_authenticated(user_id):
+        await send_message_with_retry(context, update.effective_chat.id, f"I'm sorry, {user_name}, but I can only assist authenticated users. Please provide the secret code first.")
+        return
+
+    current_scenario = context.user_data.get('scenario', load_user_scenario(user_id))
+    history_count = get_history_messages_count()
+    message_count = len(context.user_data.get('messages', []))
+
+    status_message = (
+        f"📊 Current Status:\n\n"
+        f"👤 User: {user_name}\n"
+        f"🎭 Current Scenario: {current_scenario}\n"
+        f"🔢 History Messages Count: {history_count}\n"
+        f"💬 Current Conversation Messages: {message_count}\n"
+    )
+    await send_message_with_retry(context, update.effective_chat.id, status_message, reply_markup=get_common_actions_keyboard())
+
 def main():
     application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
-
+    application.add_handler(CommandHandler("set_history_count", set_history_count))
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("clear", clear_command))
+    application.add_handler(CommandHandler("status", status_command)) 
     application.add_handler(CommandHandler("scenario", change_scenario))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     application.add_handler(CallbackQueryHandler(button))
-
     application.add_error_handler(error_handler)
-
     application.run_polling(poll_interval=1.0, timeout=30)
 
 if __name__ == '__main__':
