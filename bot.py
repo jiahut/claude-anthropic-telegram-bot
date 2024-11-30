@@ -1,7 +1,7 @@
 import logging
 import asyncio
 import time
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotCommand
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
 from telegram.constants import ChatAction
 from telegram.error import NetworkError, TimedOut
@@ -354,6 +354,17 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     await send_message_with_retry(context, update.effective_chat.id, status_message, reply_markup=get_common_actions_keyboard())
 
+async def set_commands(application):
+    commands = [
+        BotCommand("start", "Start the bot"),
+        BotCommand("help", "Show help information"),
+        BotCommand("change_scenario", "Change the current scenario"),
+        BotCommand("clear", "Clear conversation history"),
+        BotCommand("status", "Show current status"),
+        BotCommand("set_history_count", "Set number of history messages to load")
+    ]
+    await application.bot.set_my_commands(commands)
+
 def main():
     application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
     application.add_handler(CommandHandler("set_history_count", set_history_count))
@@ -370,6 +381,9 @@ def main():
     application.add_handler(CallbackQueryHandler(button))
     application.add_error_handler(error_handler)
     application.run_polling(poll_interval=1.0, timeout=30)
+
+  # Set bot commands
+    asyncio.run(set_commands(application))
 
 if __name__ == '__main__':
     main()
