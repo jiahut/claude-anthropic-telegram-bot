@@ -354,16 +354,18 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     await send_message_with_retry(context, update.effective_chat.id, status_message, reply_markup=get_common_actions_keyboard())
 
-async def set_commands(application):
-    commands = [
+async def set_menu(application):
+    menu = [
         BotCommand("start", "Start the bot"),
         BotCommand("help", "Show help information"),
         BotCommand("change_scenario", "Change the current scenario"),
-        BotCommand("clear", "Clear conversation history"),
         BotCommand("status", "Show current status"),
-        BotCommand("set_history_count", "Set number of history messages to load")
+        BotCommand("set_history_count_0", "set history to 0"),
+        BotCommand("set_history_count_1", "set history to 1"),
+        BotCommand("set_history_count_2", "set history to 2"),
+        BotCommand("set_history_count_3", "set history to 3"),
     ]
-    await application.bot.set_my_commands(commands)
+    await application.bot.set_my_commands(menu)
 
 def main():
     application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
@@ -380,7 +382,7 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     application.add_handler(CallbackQueryHandler(button))
     application.add_error_handler(error_handler)
-    asyncio.run(set_commands(application))
+    asyncio.run(set_menu(application))
     application.run_polling(poll_interval=1.0, timeout=30)
 
 if __name__ == '__main__':
